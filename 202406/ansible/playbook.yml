@@ -1,0 +1,44 @@
+---
+- name: TP
+  hosts: localhost
+  become: yes
+  vars:
+    nombre: "Gustavo"
+    apellido: "Semoniuk"
+    division: "116"
+    ip: "2800:810:435:80f4:e05f:748b:9d99:6e75"
+    distribucion: "Ubuntu 22.04"
+    cores: "6"
+
+  tasks:
+    - name: 1. Crear directorios
+      ansible.builtin.file:
+        path: "/tmp/2do_parcial/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - alumno
+        - equipo
+
+    - name: 2. Generar archivo datos_alumno.txt
+      ansible.builtin.template:
+        src: datos_alumno.txt.j2
+        dest: /tmp/2do_parcial/alumno/datos_alumno.txt
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: 3. Generar archivo datos_equipo.txt
+      ansible.builtin.template:
+        src: datos_equipo.txt.j2
+        dest: /tmp/2do_parcial/equipo/datos_equipo.txt
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: 4. Configurar sudoers para el grupo 2PSupervisores (NOPASSWD)
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers
+        line: '%2PSupervisores ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+        state: present
